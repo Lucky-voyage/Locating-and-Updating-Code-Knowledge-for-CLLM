@@ -46,7 +46,24 @@
   
   Erasing 操作是删除已有知识，不存在 Updated_API。Code_Pair 中只需要包含 Outdated_API 相关内容。
 
-### 4. **Paradigm**
+### 4. **Obtain**
+
+**Model:** https://huggingface.co/codeparrot/codeparrot
+
+**Pre-trained Dataset:** https://huggingface.co/datasets/codeparrot/codeparrot-clean
+
+我们从 pre-trained dataset 中，挑选一些较为新颖的、改动较频繁的库，例如torch等，来匹配 API 调用代码，从而构建数据集。然后将匹配到的 API 按照频次排序，选取数据集中出现次数最多的一些 API。
+
+**细节**
+- 确定我们的 **目标第三方库**：
+  - torch，numpy，tensorflow，pandas，Pillow，scikit-learn，scipy，nltk
+  - 这些库选自 APILOT 和 CodeUpdateArena 的工作
+- 在 pre-trained dataset 中，针对代码内容（**非以自然语言为主体**）中指定库的 API 调用（而非 **API 的定义和声明**），使用代码匹配到指定库的 API 调用部分。
+- 起始位置以 **def** 为分界点。初步匹配时，将整个函数作为一个单元进行匹配。换言之，我们需要匹配到 **调用特定 API 的函数定义**
+- [?how to?]清洗筛选
+- 以上步骤可满足 **erasing** 和 **editing** 的需求，但对于 **inserting** 功能，由于没有办法直接证明 LM 是否学习到某个知识，因此我们只需要确定模型的最新更改时间，选择 **指定第三方库在此之后新添加的 API**，则一定可以确保这些知识没有被学习。
+
+### 5. **Paradigm**
 
 Here is a paradigm for API `torch.autograd.grad` in version 2.0 and 2.5 without specific code snippets.
 ```json
